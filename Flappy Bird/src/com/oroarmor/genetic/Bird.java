@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import com.oroarmor.bird.Pipe;
 import com.oroarmor.network.*;
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Bird extends GeneticCreature {
 
@@ -18,6 +19,9 @@ public class Bird extends GeneticCreature {
 	boolean alive;
 	int[] brainConfig;
 	int jumpCooldown;
+	PImage flappy;
+	float currentAngle;
+	int xOffset;
 
 	public Bird(int[] _brainConfig, int _parentNum, PApplet _p) {
 		super(_brainConfig, _parentNum);
@@ -31,9 +35,12 @@ public class Bird extends GeneticCreature {
 	public void setup() {
 		y = p.height / 2;
 		yVel = 0;
-		r = p.width / 30;
+		r = p.width / 25;
 		alive = true;
 		fitness = 0;
+		flappy = p.loadImage("data/flappy.png");
+		currentAngle = 1;
+		xOffset = 0;
 	}
 
 	public void run(float[] inputs) {
@@ -45,14 +52,16 @@ public class Bird extends GeneticCreature {
 		draw();
 		float thought = brain.feedforward(inputs)[0];
 		if (thought > 0.5) {
-			jump();
+			if (alive) {
+				jump();
+			}
 		}
 	}
 
 	void update() {
 		y += yVel;
 		yVel += (float) 0.7 * p.height / p.displayHeight;
-		y = PApplet.constrain(y, r / 2, p.height - r / 2);
+		//y = PApplet.constrain(y, r / 2, p.height - r / 2);
 		if (y - r < 0 || y + r > p.height) {
 			alive = false;
 		}
@@ -67,13 +76,30 @@ public class Bird extends GeneticCreature {
 	}
 
 	void draw() {
-		if (!alive) {
-			p.fill(255, 0, 0, 20);
-			return;
-		} else {
-			p.fill(255, 255, 255, 50);
+		p.pushMatrix();
+		if (y > p.height) {
+			xOffset+=p.width / 300;
 		}
-		p.ellipse(p.width / 7, y, r, r);
+		if (xOffset != 0) {
+			if(p.width/7 - xOffset < -30) {
+				p.popMatrix();
+				return;
+			}
+			p.translate(p.width / 7 - xOffset, p.height - r/2);
+		} else {
+			p.translate(p.width / 7, y);
+		}
+		if (yVel < 0) {
+			currentAngle = PApplet.lerp(currentAngle, -0.69f, 0.3f);
+		} else {
+			currentAngle = PApplet.lerp(currentAngle, 1f, 0.1f);
+		}
+		p.rotate(currentAngle);
+		if(!alive) {
+			flappy.filter(PApplet.GRAY);
+		}
+		p.image(flappy, 0, 0, r, r * 12 / 17);
+		p.popMatrix();
 	}
 
 	public void setPApplet(PApplet _p) {
@@ -110,7 +136,7 @@ public class Bird extends GeneticCreature {
 		return fitness;
 	}
 
-	public Bird cross(ArrayList<GeneticCreature> nextGen, float[] fitnessPercent) {
+	public Bird cross(ArrayList<GeneticCreature> nextGen, float[] fitnessPercent, int genNum) {
 		Bird newBird = new Bird(brainConfig, parentNum, p);
 		int[] thing = { 4, 4, 4, 1 };
 		Bird b1 = null;
@@ -137,8 +163,14 @@ public class Bird extends GeneticCreature {
 		NeurNet avNetwork = averageNetworks(b1.brain, b2.brain, thing);
 		NeurNet randomNet = new NeurNet(thing);
 		NeurNet newNetwork = averageNetworks(avNetwork, randomNet, thing);
-		for (int i = 0; i < 5; i++) {
-			newNetwork = averageNetworks(avNetwork, newNetwork, thing);
+		if (genNum > 40 && Math.random() > 0.5) {
+			newNetwork = avNetwork;
+		} else {
+			int mutations = (int) (Math.log(genNum * genNum + 1)+1);
+			System.out.println(mutations);
+			for (int i = 0; i < mutations; i++) {
+				newNetwork = averageNetworks(avNetwork, newNetwork, thing);
+			}
 		}
 		newBird.parentNum = b1.parentNum;
 		newBird.brain = newNetwork;
