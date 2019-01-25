@@ -5,7 +5,7 @@ import com.oroarmor.bird.Pipe;
 import com.oroarmor.network.*;
 import processing.core.PApplet;
 import processing.core.PImage;
-
+ 
 public class Bird extends GeneticCreature {
 
 	public NeurNet brain;
