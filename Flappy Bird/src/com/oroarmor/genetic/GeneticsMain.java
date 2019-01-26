@@ -1,6 +1,8 @@
 package com.oroarmor.genetic;
 
 import processing.core.PApplet;
+import processing.core.PImage;
+
 import com.oroarmor.bird.*;
 
 public class GeneticsMain extends PApplet {
@@ -11,6 +13,12 @@ public class GeneticsMain extends PApplet {
 	int passedPipes = 0;
 	int genNum = 0;
 	int maxPipes = 10;
+
+	int bgOff;
+
+	PImage background;
+
+	boolean bg = false;
 
 	public static void main(String[] args) {
 		PApplet.main("com.oroarmor.genetic.GeneticsMain");
@@ -30,12 +38,23 @@ public class GeneticsMain extends PApplet {
 
 		}
 		nearestPipe = 1;
-
+		background = loadImage("th.jpg");
+		bgOff = 0;
 	}
 
 	public void draw() {
-		// frameRate(1);
+		// frameRate(30);
+		System.out.println(frameRate);
 		background(0);
+		if (bg) {
+			bgOff--;
+			imageMode(PApplet.CORNER);
+			image(background, bgOff, 0, width, height);
+			image(background, bgOff + width, 0, width, height);
+			if (bgOff == -width) {
+				bgOff = 0;
+			}
+		}
 		float[] standardInputs = { 0f, 0f, pipes[nearestPipe].spacing + pipes[nearestPipe].yTop,
 				pipes[nearestPipe].yTop };
 		float[] GeneticInfo = { passedPipes, genNum };
@@ -78,6 +97,16 @@ public class GeneticsMain extends PApplet {
 	public void mouseClicked() {
 		for (Bird bird : test.currentGen) {
 			bird.jump();
+		}
+	}
+
+	public void keyPressed() {
+		if ((key + "").equals("b")) {
+			if (bg) {
+				bg = false;
+			} else {
+				bg = true;
+			}
 		}
 	}
 

@@ -167,7 +167,6 @@ public class Bird extends GeneticCreature {
 			newNetwork = avNetwork;
 		} else {
 			int mutations = (int) (Math.log(genNum * genNum + 1)+1);
-			System.out.println(mutations);
 			for (int i = 0; i < mutations; i++) {
 				newNetwork = averageNetworks(avNetwork, newNetwork, thing);
 			}

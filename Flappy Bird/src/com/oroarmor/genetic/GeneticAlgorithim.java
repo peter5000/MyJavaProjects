@@ -18,6 +18,7 @@ public class GeneticAlgorithim<T extends GeneticCreature> {
 		}
 		setup();
 		genNum = 0;
+
 	}
 
 	private void setup() {
@@ -39,10 +40,11 @@ public class GeneticAlgorithim<T extends GeneticCreature> {
 	}
 
 	public void run(float[] inputs) {
+
 		for (T creature : currentGen) {
 			creature.run(inputs.clone());
 		}
-		for(T creature :nextGen) {
+		for (T creature : nextGen) {
 			creature.run(inputs.clone());
 		}
 	}
