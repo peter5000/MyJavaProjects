@@ -33,7 +33,7 @@ public abstract class GeneticCreature {
 
 	public abstract void calculateFitness(Object o, float[] addlFitnessComponents);
 
-	public abstract GeneticCreature cross(ArrayList<GeneticCreature> nextGen, float[] fitnessPercent);
+	public abstract GeneticCreature cross(ArrayList<GeneticCreature> nextGen, float[] fitnessPercent, int genNum);
 
 	public abstract float getFitness();
 
